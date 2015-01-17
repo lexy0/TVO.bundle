@@ -22,14 +22,33 @@ def Start():
 def MainMenu():
 
     oc = ObjectContainer(title1=TITLE)
-
-    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='Current Programs', pass_url='http://ww3.tvo.org/video?quicktabs_3=0'), title='Current Programs'))
-    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='Drams', pass_url='http://ww3.tvo.org/video?quicktabs_3=3'), title='Dramas'))
-    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='Archives', pass_url='http://ww3.tvo.org/video?quicktabs_3=4'), title='Archives'))
-    oc.add(DirectoryObject(key=Callback(ShowDocs, title='Documentaries', pass_url='http://ww3.tvo.org/video?quicktabs_3=1', pgnum = 0), title='Documentaries'))
-    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='Documentary Series', pass_url='http://ww3.tvo.org/video?quicktabs_3=2'), title='Documentary Series'))
-    oc.add(DirectoryObject(key=Callback(ShowDocs, title='Coming Soon', pass_url='http://ww3.tvo.org/video?quicktabs_3=6', pgnum = 0), title='Coming Soon'))
-
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A', pass_url='http://tvo.org/programs-a-z/A'), title='A'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='B', pass_url='http://tvo.org/programs-a-z#/B'), title='B'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/C'), title='C'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/D'), title='D'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/E'), title='E'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/F'), title='F'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/G'), title='G'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/H'), title='H'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/I'), title='I'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/J'), title='J'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/K'), title='K'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/L'), title='L'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/M'), title='M'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/N'), title='N'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/O'), title='O'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/P'), title='P'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/Q'), title='Q'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/R'), title='R'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/S'), title='S'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/T'), title='T'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/U'), title='U'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/V'), title='V'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/W'), title='W'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/X'), title='X'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/Y'), title='Y'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/Z'), title='Z'))
+        
     return oc
 
 
@@ -39,59 +58,82 @@ def ShowPrograms(title, pass_url):
 
     oc = ObjectContainer(title2=title)
     pageElement = HTML.ElementFromURL(pass_url)
-    for item in pageElement.xpath('//div[contains(@id, "edit-field-web-master-series-nid")]'):
-        showIDFull = item.xpath('./input[@type="radio"]')[0].get('value')
-        showID = showIDFull.replace('<span></span>','')
-        showTitle = item.xpath('./label[@class="option"]')[0].text
-        showURL = 'http://ww3.tvo.org/program/'+showID+'/'
-        if not showTitle.startswith(' <Any>'):
-            oc.add(DirectoryObject(key=Callback(PlayPrograms, title=showTitle, pass_url=showURL, showpg=0), title=showTitle, summary='Add summary'))
+    for item in pageElement.xpath('//div[contains(@class, "views-row views-row-")]'):
+        showTitle = item.xpath('./a[@class="ms-heading"]')[0].text
+        showThumb = item.xpath('.//img/@src')[0]
+        showSummary = item.xpath('.//div[@class="views-field-field-description-value"]/p/text()')[0]
+        showURL = item.xpath('.//span[@class="field-content ms-detail-links-program"]/a')[0].get('href')
 
+        isSeries = -1
+        nodeExists = item.xpath('boolean(.//span[@class="field-content ms-detail-links-video"]/a)');
+        if nodeExists == 1:
+            vidURL = item.xpath('.//span[@class="field-content ms-detail-links-video"]/a')[0].get('href')
+            isSeries = vidURL.find('video-landing');
+
+        if isSeries == 15:
+            if not showTitle.startswith(' <Any>'):
+                oc.add(DirectoryObject(key=Callback(ShowEpisodes, title=showTitle, pass_url=showURL, pass_thumb=showThumb), title=showTitle, summary=isSeries, thumb=showThumb))
+
+        if isSeries == -1:
+            if not showTitle.startswith(' <Any>'):
+
+                #for itemDocs in pageElement.xpath('//span[contains(@class, "field-content ms-detail-links-video")]'):
+                    #showURL = itemDocs.xpath('./a')[0].get('href')
+                #if not vidURL == ""
+                if 'bcid' in vidURL:
+                    oc.add(DirectoryObject(key=Callback(PlayEpisodes, title=showTitle, pass_url=vidURL), title=showTitle, summary=showSummary, thumb=showThumb))
+                    #oc.add(DirectoryObject(key=Callback(ShowDocs, title=showTitle, pass_url=showURL, pass_thumb=showThumb), title=showTitle, summary=isSeries, thumb=showThumb))       
+
+        #isSeries = -1
+        vidURL = ''
+        
     return oc
 
 
+
 ###################################################################################################
-@route(PREFIX + '/playprograms')
-def PlayPrograms(title, pass_url, showpg):
+@route(PREFIX + '/showepisodes')
+def ShowEpisodes(title, pass_url, pass_thumb):
 
     oc = ObjectContainer(title2=title)
     pageElement = HTML.ElementFromURL(pass_url)
 
-    for epies in pageElement.xpath('//a[contains(@class, "watch-video")]'):
-        epURL = epies.xpath('./@href')[0]
-
-        epElement = HTML.ElementFromURL(epURL)
-        epTitle = epElement.xpath('//h1[@class="title"]')[0].text
-        epSummary = epElement.xpath('//head//meta[@property="og:description"]')[0].get('content')
-        epThumb = epElement.xpath('//head//meta[@property="og:image"]')[0].get('content')
-        PlayerID = epElement.xpath('//param[contains(@name, "playerID")]')[0].get('value')
-        PlayerKey = epElement.xpath('//param[contains(@name, "playerKey")]')[0].get('value')
-        VideoID = epURL.replace('http://ww3.tvo.org/bcid/','')
-        vidURL = 'http://c.brightcove.com/services/viewer/federated_f9?isVid=1&isUI=1&videoId='+VideoID+'&playerID='+PlayerID+'&playerKey='+PlayerKey+'&domain=embed&dynamicStreaming=true'
-
-        oc.add(VideoClipObject(title = epTitle, url = vidURL, summary = epSummary, thumb = epThumb))
+    for item in pageElement.xpath('//li[contains(@class, "views-row views-row")]'):
+        try:
+            #epURL = item.xpath('.//span[contains(@class, "vid")]/a')[0].get('href')
+            epURL = item.xpath('.//a[contains(@class, "watch-video")]')[0].get('href')
+            epTitle = item.xpath('./span[contains(@class, "ep-title")]')[0].text
+            epSummary = item.xpath('.//p[contains(@class, "ep-desc")]')[0].text
+            #epURL = 'http://tvo.org/bcid/1101303001001'
+            #epTitle = 'Sum title'
+            #return ObjectContainer(message='This is a series: '+epTitle)
+            oc.add(DirectoryObject(key=Callback(PlayEpisodes, title=epTitle, pass_url=epURL),title=epTitle, summary=epSummary, thumb=pass_thumb))
+            Log(epTitle)
+            Log(epURL)
+        except:
+            continue
 
     return oc
 
+
+
+
+
 ###################################################################################################
-@route(PREFIX + '/showdocs')
-def ShowDocs(title, pass_url, pgnum):
+@route(PREFIX + '/playepisodes')
+def PlayEpisodes(title, pass_url):
 
     oc = ObjectContainer(title2=title)
-    pageElement = HTML.ElementFromURL(pass_url)
-    
-    for item in pageElement.xpath('//div[contains(@class, "video-landing-this-means-war")]'):
-        docTitle = 'testing'
-        docURL = item.xpath('./a[contains(@class, "video-landing-item-anchor")]')[0].get('href')
-        docElement = HTML.ElementFromURL(docURL)
-        docTitle = docElement.xpath('//h1[@class="title"]')[0].text
-        docSummary = docElement.xpath('//head//meta[@property="og:description"]')[0].get('content')
-        docThumb = docElement.xpath('//head//meta[@property="og:image"]')[0].get('content')
-        VideoID = docURL.replace('http://ww3.tvo.org/bcid/','')
-        PlayerID = docElement.xpath('//param[contains(@name, "playerID")]')[0].get('value')
-        PlayerKey = docElement.xpath('//param[contains(@name, "playerKey")]')[0].get('value')
-        vidURL = 'http://c.brightcove.com/services/viewer/federated_f9?isVid=1&isUI=1&videoId='+VideoID+'&playerID='+PlayerID+'&playerKey='+PlayerKey+'&domain=embed&dynamicStreaming=true'
+    epElement = HTML.ElementFromURL(pass_url)
 
-        oc.add(VideoClipObject(title = docTitle, url = vidURL, summary = docSummary, thumb = docThumb))
+    epTitle = epElement.xpath('//h1[@class="title"]')[0].text
+    epSummary = epElement.xpath('//head//meta[@property="og:description"]')[0].get('content')
+    epThumb = epElement.xpath('//head//meta[@property="og:image"]')[0].get('content')
+    PlayerID = epElement.xpath('//param[contains(@name, "playerID")]')[0].get('value')
+    PlayerKey = epElement.xpath('//param[contains(@name, "playerKey")]')[0].get('value')
+    VideoID = pass_url.replace('http://tvo.org/bcid/','')
+    vidURL = 'http://c.brightcove.com/services/viewer/federated_f9?isVid=true&isUI=true&videoId='+VideoID+'&playerID='+PlayerID+'&playerKey='+PlayerKey+'&domain=embed&dynamicStreaming=true'
+
+    oc.add(VideoClipObject(title = epTitle, url = vidURL, summary = epSummary, thumb = epThumb))
 
     return oc
