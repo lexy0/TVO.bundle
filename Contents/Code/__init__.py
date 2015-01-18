@@ -3,6 +3,7 @@ TITLE  = 'TVO'
 PREFIX = '/video/tvo'
 ART   = "art-default.jpg"
 THUMB = 'icon-default.png'
+RE_URL = Regex('((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)')
 HTTP_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/536.26.17 (KHTML, like Gecko) Version/6.0.2 Safari/536.26.17"
 
 ###################################################################################################
@@ -23,8 +24,8 @@ def MainMenu():
 
     oc = ObjectContainer(title1=TITLE)
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A', pass_url='http://tvo.org/programs-a-z/A'), title='A'))
-    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='B', pass_url='http://tvo.org/programs-a-z#/B'), title='B'))
-    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/C'), title='C'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='B', pass_url='http://tvo.org/programs-a-z/B'), title='B'))
+    oc.add(DirectoryObject(key=Callback(ShowPrograms, title='C', pass_url='http://tvo.org/programs-a-z/C'), title='C'))
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/D'), title='D'))
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/E'), title='E'))
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/F'), title='F'))
@@ -48,22 +49,22 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/X'), title='X'))
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/Y'), title='Y'))
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A-Z', pass_url='http://tvo.org/programs-a-z/Z'), title='Z'))
-        
+
     return oc
 
+    
 
 ###################################################################################################
 @route(PREFIX + '/showprograms')
 def ShowPrograms(title, pass_url):
-
     oc = ObjectContainer(title2=title)
-    pageElement = HTML.ElementFromURL(pass_url)
-    for item in pageElement.xpath('//div[contains(@class, "views-row views-row-")]'):
+    pg_content = HTTP.Request(pass_url)
+    pg_page = HTML.ElementFromString(pg_content)
+    for item in pg_page.xpath('//div[contains(@class, "views-row views-row-")]'):
         showTitle = item.xpath('./a[@class="ms-heading"]')[0].text
         showThumb = item.xpath('.//img/@src')[0]
         showSummary = item.xpath('.//div[@class="views-field-field-description-value"]/p/text()')[0]
         showURL = item.xpath('.//span[@class="field-content ms-detail-links-program"]/a')[0].get('href')
-
         isSeries = -1
         nodeExists = item.xpath('boolean(.//span[@class="field-content ms-detail-links-video"]/a)');
         if nodeExists == 1:
@@ -72,21 +73,18 @@ def ShowPrograms(title, pass_url):
 
         if isSeries == 15:
             if not showTitle.startswith(' <Any>'):
-                oc.add(DirectoryObject(key=Callback(ShowEpisodes, title=showTitle, pass_url=showURL, pass_thumb=showThumb), title=showTitle, summary=isSeries, thumb=showThumb))
+                oc.add(DirectoryObject(key=Callback(ShowEpisodes, title=showTitle, pass_url=showURL, pass_thumb=showThumb), title=showTitle, summary=showSummary, thumb=showThumb))
 
-        if isSeries == -1:
+        if isSeries == '-1':
             if not showTitle.startswith(' <Any>'):
 
-                #for itemDocs in pageElement.xpath('//span[contains(@class, "field-content ms-detail-links-video")]'):
-                    #showURL = itemDocs.xpath('./a')[0].get('href')
-                #if not vidURL == ""
                 if 'bcid' in vidURL:
                     oc.add(DirectoryObject(key=Callback(PlayEpisodes, title=showTitle, pass_url=vidURL), title=showTitle, summary=showSummary, thumb=showThumb))
-                    #oc.add(DirectoryObject(key=Callback(ShowDocs, title=showTitle, pass_url=showURL, pass_thumb=showThumb), title=showTitle, summary=isSeries, thumb=showThumb))       
 
-        #isSeries = -1
         vidURL = ''
-        
+
+    #return ObjectContainer(message='This is a series: '+vidURL)
+
     return oc
 
 
