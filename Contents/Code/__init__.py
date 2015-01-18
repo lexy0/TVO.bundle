@@ -65,25 +65,22 @@ def ShowPrograms(title, pass_url):
         showThumb = item.xpath('.//img/@src')[0]
         showSummary = item.xpath('.//div[@class="views-field-field-description-value"]/p/text()')[0]
         showURL = item.xpath('.//span[@class="field-content ms-detail-links-program"]/a')[0].get('href')
-        isSeries = -1
+        isSeries = 3 #not sure why this can't be set to 0
         nodeExists = item.xpath('boolean(.//span[@class="field-content ms-detail-links-video"]/a)');
         if nodeExists == 1:
             vidURL = item.xpath('.//span[@class="field-content ms-detail-links-video"]/a')[0].get('href')
-            isSeries = vidURL.find('video-landing');
+            isSeries = 'video-landing' in vidURL
 
-        if isSeries == 15:
+        if isSeries == 1:
             if not showTitle.startswith(' <Any>'):
                 oc.add(DirectoryObject(key=Callback(ShowEpisodes, title=showTitle, pass_url=showURL, pass_thumb=showThumb), title=showTitle, summary=showSummary, thumb=showThumb))
 
-        if isSeries == '-1':
+        if isSeries == 0:
             if not showTitle.startswith(' <Any>'):
-
                 if 'bcid' in vidURL:
                     oc.add(DirectoryObject(key=Callback(PlayEpisodes, title=showTitle, pass_url=vidURL), title=showTitle, summary=showSummary, thumb=showThumb))
 
         vidURL = ''
-
-    #return ObjectContainer(message='This is a series: '+vidURL)
 
     return oc
 
@@ -98,13 +95,9 @@ def ShowEpisodes(title, pass_url, pass_thumb):
 
     for item in pageElement.xpath('//li[contains(@class, "views-row views-row")]'):
         try:
-            #epURL = item.xpath('.//span[contains(@class, "vid")]/a')[0].get('href')
             epURL = item.xpath('.//a[contains(@class, "watch-video")]')[0].get('href')
             epTitle = item.xpath('./span[contains(@class, "ep-title")]')[0].text
             epSummary = item.xpath('.//p[contains(@class, "ep-desc")]')[0].text
-            #epURL = 'http://tvo.org/bcid/1101303001001'
-            #epTitle = 'Sum title'
-            #return ObjectContainer(message='This is a series: '+epTitle)
             oc.add(DirectoryObject(key=Callback(PlayEpisodes, title=epTitle, pass_url=epURL),title=epTitle, summary=epSummary, thumb=pass_thumb))
             Log(epTitle)
             Log(epURL)
@@ -112,8 +105,6 @@ def ShowEpisodes(title, pass_url, pass_thumb):
             continue
 
     return oc
-
-
 
 
 
