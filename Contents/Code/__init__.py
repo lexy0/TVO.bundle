@@ -1,8 +1,8 @@
 NAME = 'TVO'
 TITLE  = 'TVO'
 PREFIX = '/video/tvo'
-ART   = "art-default.jpg"
-THUMB = 'icon-default.png'
+ART = 'art-default.jpg'
+THUMB = 'icon-default.jpg'
 RE_URL = Regex('((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)')
 HTTP_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/536.26.17 (KHTML, like Gecko) Version/6.0.2 Safari/536.26.17"
 
