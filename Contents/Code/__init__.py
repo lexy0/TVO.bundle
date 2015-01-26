@@ -21,8 +21,23 @@ def Start():
 ###################################################################################################
 @handler(PREFIX, TITLE, thumb = THUMB, art = ART)
 def MainMenu():
-
     oc = ObjectContainer(title1=TITLE)
+
+    oc.add(DirectoryObject(key=Callback(DocsSeriesMenu, title='Documentaries & Series'), title='Documentaries & Series'))
+    oc.add(DirectoryObject(key=Callback(ShowTheAgenda, title='The Agenda', pass_url='http://theagenda.tvo.org/past-episodes', pass_thumb='https://pbs.twimg.com/profile_images/468804042336907265/K_RZ4BOp.jpeg'), title='The Agenda', thumb='https://pbs.twimg.com/profile_images/468804042336907265/K_RZ4BOp.jpeg'))
+    oc.add(DirectoryObject(key=Callback(YTVids, title='TVO Parents', pass_url='https://www.youtube.com/user/tvoparents/videos', pass_thumb='https://pbs.twimg.com/profile_images/2028493104/TVO_Facebook_TVOParents_Profile.jpg'), title='TVO Parents', thumb='https://pbs.twimg.com/profile_images/2028493104/TVO_Facebook_TVOParents_Profile.jpg'))
+    oc.add(DirectoryObject(key=Callback(YTVids, title='Big Ideas', pass_url='https://www.youtube.com/user/TVOBigIdeas/videos', pass_thumb='https://pbs.twimg.com/profile_images/372784543/big-ideas-logo_400x400.jpg'), title='Big Ideas', thumb='https://pbs.twimg.com/profile_images/372784543/big-ideas-logo_400x400.jpg'))
+    oc.add(DirectoryObject(key=Callback(YTVids, title='Allan Gregg In Conversation', pass_url='https://www.youtube.com/user/AllanGregg/videos', pass_thumb='http://i.ytimg.com/i/XvuG5Dm12QKzvkA-3SR_LQ/mq1.jpg?v=520a776e'), title='Allan Gregg In Conversation', thumb='http://i.ytimg.com/i/XvuG5Dm12QKzvkA-3SR_LQ/mq1.jpg?v=520a776e'))
+    oc.add(DirectoryObject(key=Callback(YTVids, title='Saturday Night at the Movies', pass_url='https://www.youtube.com/user/TVOsnam/videos', pass_thumb='http://i.ytimg.com/i/3V0davW9bG_M2ykgjHvPsA/mq1.jpg?v=520a77fa'), title='Saturday Night at the Movies', thumb='http://i.ytimg.com/i/3V0davW9bG_M2ykgjHvPsA/mq1.jpg?v=520a77fa'))
+
+    return oc
+
+
+###################################################################################################
+@route(PREFIX + '/docsseriesmenu')
+def DocsSeriesMenu(title):
+
+    oc = ObjectContainer(title2=TITLE)
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='A', pass_url='http://tvo.org/programs-a-z/A'), title='A'))
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='B', pass_url='http://tvo.org/programs-a-z/B'), title='B'))
     oc.add(DirectoryObject(key=Callback(ShowPrograms, title='C', pass_url='http://tvo.org/programs-a-z/C'), title='C'))
@@ -52,7 +67,6 @@ def MainMenu():
 
     return oc
 
-    
 
 ###################################################################################################
 @route(PREFIX + '/showprograms')
@@ -85,7 +99,6 @@ def ShowPrograms(title, pass_url):
     return oc
 
 
-
 ###################################################################################################
 @route(PREFIX + '/showepisodes')
 def ShowEpisodes(title, pass_url, pass_thumb):
@@ -107,7 +120,6 @@ def ShowEpisodes(title, pass_url, pass_thumb):
     return oc
 
 
-
 ###################################################################################################
 @route(PREFIX + '/playepisodes')
 def PlayEpisodes(title, pass_url):
@@ -121,8 +133,65 @@ def PlayEpisodes(title, pass_url):
     PlayerID = epElement.xpath('//param[contains(@name, "playerID")]')[0].get('value')
     PlayerKey = epElement.xpath('//param[contains(@name, "playerKey")]')[0].get('value')
     VideoID = pass_url.replace('http://tvo.org/bcid/','')
+    VideoID = VideoID.replace('http://theagenda.tvo.org/bcid/','')
     vidURL = 'http://c.brightcove.com/services/viewer/federated_f9?isVid=true&isUI=true&videoId='+VideoID+'&playerID='+PlayerID+'&playerKey='+PlayerKey+'&domain=embed&dynamicStreaming=true'
 
     oc.add(VideoClipObject(title = epTitle, url = vidURL, summary = epSummary, thumb = epThumb))
+
+    return oc
+
+
+###################################################################################################
+#                      The Agenda
+###################################################################################################
+
+###################################################################################################
+@route(PREFIX + '/showtheagenda')
+def ShowTheAgenda(title, pass_url, pass_thumb):
+    oc = ObjectContainer(title2=title)
+    pg_content = HTTP.Request(pass_url)
+    pg_page = HTML.ElementFromString(pg_content)
+    for item in pg_page.xpath('//div[contains(@class, "views-row views-row-")]'):
+        showTitle = item.xpath('.//span[@class="date-display-single"]')[0].text
+        showSummary = item.xpath('.//div[@class="past-episode-desc"]/p')[0].text
+        showURL = item.xpath('.//div[@class="past-episode-link"]/a')[0].get('href')
+        oc.add(DirectoryObject(key=Callback(ShowAgendaSegments, title=showTitle, pass_url=showURL, pass_thumb=pass_thumb), title=showTitle, summary=showSummary, thumb=pass_thumb))
+
+    return oc
+
+
+###################################################################################################
+@route(PREFIX + '/showagendasegments')
+def ShowAgendaSegments(title, pass_url, pass_thumb):
+
+    oc = ObjectContainer(title2=title)
+    pageElement = HTML.ElementFromURL(pass_url)
+
+    for item in pageElement.xpath('//div[@class="episode-detail-segment"]'):
+        epURL = item.xpath('.//div[@class="episode-detail-segment-watch-video"]/a')[0].get('href')
+        epTitle = item.xpath('.//h4')[0].text
+        epSummary = item.xpath('.//div[contains(@class, "episode-detail-segment-info")]/p')[0].text
+        if 'bcid' in epURL:
+            oc.add(DirectoryObject(key=Callback(PlayEpisodes, title=epTitle, pass_url=epURL),title=epTitle, summary=epSummary, thumb=pass_thumb))
+
+    return oc
+
+
+###################################################################################################
+#                      YouTube Shows
+###################################################################################################
+
+###################################################################################################
+@route(PREFIX + '/ytvids')
+def YTVids(title, pass_url, pass_thumb):
+    oc = ObjectContainer(title2=title)
+    pgElement = HTML.ElementFromURL(pass_url)
+    for item in pgElement.xpath('//li[@class="channels-content-item yt-shelf-grid-item"]'):
+        ytID = item.xpath('.//div/@data-context-item-id')[0]
+        vidTitle = item.xpath('.//h3/a')[0].text
+        vidThumb = 'http://i.ytimg.com/vi/'+ytID+'/mqdefault.jpg'
+        vidSummary = vidTitle
+        vidURL = 'https://www.youtube.com/watch?v='+ytID
+        oc.add(VideoClipObject(title = vidTitle, url = vidURL, thumb = vidThumb))
 
     return oc
